@@ -14,8 +14,14 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  boot.extraModulePackages = [
+    pkgs.linuxPackages.asus-wmi-sensors
+  ];
+
+  boot.kernelModules = [ "asus-wmi-sensors" ];
+
+  networking.hostName = "bungo";
+  networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -60,8 +66,42 @@
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  services.prometheus = {
+    enable = true;
+    exporters.node.enable = true;
+    scrapeConfigs = [{
+      job_name = "node";
+      static_configs = [{
+        targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
+      }];
+    }];
+  };
+
+  environment.etc."grafana/dashboards/hwmon.json" = {
+    mode = "0444";
+    source = ./dashboards/hwmon.json;
+  };
+
+  services.grafana = {
+    enable = true;
+    provision = {
+      enable = true;
+      datasources = [
+        {
+          name = "Prometheus";
+          type = "prometheus";
+          isDefault = true;
+          url = "http://127.0.0.1:${toString config.services.prometheus.port}";
+        }
+      ];
+      dashboards = [
+        {
+          name = "provisioned-dashboards";
+          options.path = "/etc/grafana/dashboards/";
+        }
+      ];
+    };
+  };
 
   users.groups = {
     ed = {
@@ -84,6 +124,8 @@
   environment.systemPackages = with pkgs; [
      wget vim
      firefox
+     linuxPackages.asus-wmi-sensors
+     lm_sensors
      chromium
      git
      gparted
@@ -92,6 +134,17 @@
      steam
      kicad
      keepassxc
+     kodi
+     virtualbox
+     transmission
+     filezilla
+     docker
+     docker_compose
+     vulkan-tools
+     virtualboxWithExtpack
+     kcalc
+     ardour
+     cmake
   ];
 
   fileSystems."/mnt/tank" = {
