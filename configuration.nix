@@ -20,6 +20,10 @@
 
   boot.kernelModules = [ "asus-wmi-sensors" ];
 
+  boot.extraModprobeConfig = ''
+    options snd_usb_audio device_setup=1
+  '';
+
   networking.hostName = "bungo";
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
 
@@ -131,7 +135,6 @@
      gparted
      vscode
      vlc
-     steam
      kicad
      keepassxc
      kodi
@@ -145,6 +148,9 @@
      kcalc
      ardour
      cmake
+     minicom
+     radeon-profile
+     glxinfo
   ];
 
   fileSystems."/mnt/tank" = {
@@ -159,6 +165,7 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+  programs.steam.enable = true;
   programs.zsh.enable = true;
   # List services that you want to enable:
 
