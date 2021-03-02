@@ -34,6 +34,7 @@
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
+  networking.useNetworkd = false;
   networking.interfaces = {
     enp6s0.useDHCP = true;
     enp8s0 = {
@@ -138,7 +139,6 @@
      kicad
      keepassxc
      kodi
-     virtualbox
      transmission
      filezilla
      docker
@@ -151,6 +151,11 @@
      minicom
      radeon-profile
      glxinfo
+     dropbox
+     yosys
+     nextpnr
+     icestorm
+     gnumake
   ];
 
   fileSystems."/mnt/tank" = {
