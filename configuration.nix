@@ -66,7 +66,7 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-
+  services.printing.drivers = [ pkgs.gutenprint ];
   # Enable sound.
   sound.enable = true;
   hardware.pulseaudio.enable = true;
@@ -118,7 +118,7 @@
   users.users.ed = {
     isNormalUser = true;
     group = "ed";
-    extraGroups = [ "wheel" "users" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "users" "dialout" ];
     shell = pkgs.zsh;
   };
 
@@ -149,6 +149,7 @@
      ardour
      cmake
      minicom
+     picocom
      radeon-profile
      glxinfo
      dropbox
@@ -156,6 +157,7 @@
      nextpnr
      icestorm
      gnumake
+     rustup
   ];
 
   fileSystems."/mnt/tank" = {
