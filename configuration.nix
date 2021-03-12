@@ -82,9 +82,12 @@
     }];
   };
 
-  environment.etc."grafana/dashboards/hwmon.json" = {
-    mode = "0444";
-    source = ./dashboards/hwmon.json;
+  environment.etc = with pkgs; {
+    "grafana/dashboards/hwmon.json" = {
+      mode = "0444";
+      source = ./dashboards/hwmon.json;
+    };
+    "jdk15".source = adoptopenjdk-jre-hotspot-bin-15;
   };
 
   services.grafana = {
@@ -146,6 +149,7 @@
      vulkan-tools
      virtualboxWithExtpack
      kcalc
+     ark
      ardour
      cmake
      minicom
@@ -158,6 +162,10 @@
      icestorm
      gnumake
      rustup
+     zoom-us
+     tree
+     jetbrains.idea-community
+     adoptopenjdk-hotspot-bin-15
   ];
 
   fileSystems."/mnt/tank" = {
@@ -174,6 +182,10 @@
   # };
   programs.steam.enable = true;
   programs.zsh.enable = true;
+  programs.java = {
+    enable = true;
+    package = pkgs.adoptopenjdk-hotspot-bin-15;
+  };
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
