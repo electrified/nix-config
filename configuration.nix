@@ -166,6 +166,10 @@
      tree
      jetbrains.idea-community
      adoptopenjdk-hotspot-bin-15
+     guvcview
+     v4l_utils
+     obs-studio
+     hugo
   ];
 
   fileSystems."/mnt/tank" = {
