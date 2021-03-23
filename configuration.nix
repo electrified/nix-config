@@ -170,6 +170,10 @@
      v4l_utils
      obs-studio
      hugo
+     nix-prefetch-scripts
+     spectacle
+     ffmpeg-full
+     kdenlive
   ];
 
   fileSystems."/mnt/tank" = {
