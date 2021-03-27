@@ -174,6 +174,7 @@
      spectacle
      ffmpeg-full
      kdenlive
+     awscli2
   ];
 
   fileSystems."/mnt/tank" = {
