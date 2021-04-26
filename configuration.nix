@@ -14,6 +14,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.blacklistedKernelModules = [
+    "dvb_usb_rtl28xxu"
+  ];
+
+  services.udev.packages = [ pkgs.rtl-sdr ];
+
   boot.extraModulePackages = [
     pkgs.linuxPackages.asus-wmi-sensors
   ];
@@ -70,6 +76,7 @@
   # Enable sound.
   sound.enable = true;
   hardware.pulseaudio.enable = true;
+  hardware.rtl-sdr.enable = true;
 
   services.prometheus = {
     enable = true;
@@ -121,7 +128,7 @@
   users.users.ed = {
     isNormalUser = true;
     group = "ed";
-    extraGroups = [ "wheel" "users" "dialout" ];
+    extraGroups = [ "wheel" "users" "dialout" "plugdev"];
     shell = pkgs.zsh;
   };
 
@@ -175,6 +182,8 @@
      ffmpeg-full
      kdenlive
      awscli2
+     gtkwave
+     verilog
   ];
 
   fileSystems."/mnt/tank" = {
