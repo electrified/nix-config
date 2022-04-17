@@ -31,7 +31,7 @@
   '';
 
   networking.hostName = "bungo";
-  networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
+  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -172,7 +172,7 @@
      zoom-us
      tree
      jetbrains.idea-community
-     adoptopenjdk-hotspot-bin-15
+     adoptopenjdk-hotspot-bin-16
      guvcview
      v4l_utils
      obs-studio
@@ -184,11 +184,13 @@
      awscli2
      gtkwave
      verilog
+     usbutils
   ];
 
   fileSystems."/mnt/tank" = {
     device = "10.0.0.1:/tank";
     fsType = "nfs";
+    options = ["noauto"];
   };
 
   # Some programs need SUID wrappers, can be configured further or are

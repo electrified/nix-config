@@ -14,22 +14,22 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/819ca55a-2d22-44f7-8273-2695a4092470";
+    { device = "/dev/disk/by-uuid/ac58bb38-1ecd-4f05-b5c2-a8150f79bab0";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/79AF-4103";
+    { device = "/dev/disk/by-uuid/0C10-981C";
       fsType = "vfat";
     };
 
   fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/68d2b7d3-02bb-4b01-9251-6722964f70bd";
+    { device = "/dev/disk/by-uuid/54cbdaaa-153e-44dc-83e8-8772646b9c0f";
       fsType = "ext4";
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/7eae1623-2e40-406a-b916-c2c70275fbac"; }
+    [ { device = "/dev/disk/by-uuid/fe465815-947f-4ffa-a8eb-fe9dc33d5f95"; }
     ];
 
   # high-resolution display
