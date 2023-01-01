@@ -6,7 +6,8 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
@@ -30,8 +31,17 @@
     options snd_usb_audio device_setup=1
   '';
 
-  networking.hostName = "bungo";
-  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.hostName = "zoomer";
+
+  networking.wireless = {
+    enable = true; # Enables wireless support via wpa_supplicant.
+    userControlled.enable = true;
+    networks = {
+      badgerfields = {
+        pskRaw = "";
+      };
+    };
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -40,16 +50,23 @@
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
-  networking.useNetworkd = false;
-  networking.interfaces = {
-    enp6s0.useDHCP = true;
-    enp8s0 = {
-      useDHCP = false;
-      mtu = 9000;
-      ipv4.addresses = [{address = "10.0.0.2"; prefixLength = 24;}];
-    };
-    wlp7s0.useDHCP = true;
-  };
+  networking.interfaces.enp6s0.useDHCP = false;
+  networking.interfaces.enp8s0.useDHCP = true;
+  networking.interfaces.wlp7s0.useDHCP = true;
+
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+  #  networking.interfaces = {
+  #   enp6s0.useDHCP = true;
+  #   enp8s0 = {
+  #     useDHCP = false;
+  #     mtu = 9000;
+  #     ipv4.addresses = [{address = "10.0.0.2"; prefixLength = 24;}];
+  #   };
+  #   wlp7s0.useDHCP = true;
+  # };
   # Select internationalisation properties.
   # i18n.defaultLocale = "en_US.UTF-8";
   # console = {
@@ -64,7 +81,7 @@
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  
+
 
   # Configure keymap in X11
   # services.xserver.layout = "us";
@@ -77,6 +94,9 @@
   sound.enable = true;
   hardware.pulseaudio.enable = true;
   hardware.rtl-sdr.enable = true;
+
+  # Enable touchpad support (enabled default in most desktopManager).
+  # services.xserver.libinput.enable = true;
 
   services.prometheus = {
     enable = true;
@@ -98,23 +118,32 @@
   };
 
   services.grafana = {
+    settings = { };
     enable = true;
     provision = {
       enable = true;
-      datasources = [
-        {
-          name = "Prometheus";
-          type = "prometheus";
-          isDefault = true;
-          url = "http://127.0.0.1:${toString config.services.prometheus.port}";
-        }
-      ];
-      dashboards = [
-        {
-          name = "provisioned-dashboards";
-          options.path = "/etc/grafana/dashboards/";
-        }
-      ];
+      datasources = {
+        settings = {
+          datasources = [
+            {
+              name = "Prometheus";
+              type = "prometheus";
+              isDefault = true;
+              url = "http://127.0.0.1:${toString config.services.prometheus.port}";
+            }
+          ];
+        };
+      };
+      dashboards = {
+        settings = {
+          providers = [
+            {
+              name = "provisioned-dashboards";
+              options.path = "/etc/grafana/dashboards/";
+            }
+          ];
+        };
+      };
     };
   };
 
@@ -128,7 +157,7 @@
   users.users.ed = {
     isNormalUser = true;
     group = "ed";
-    extraGroups = [ "wheel" "users" "dialout" "plugdev"];
+    extraGroups = [ "wheel" "users" "dialout" "plugdev" ];
     shell = pkgs.zsh;
   };
 
@@ -137,60 +166,62 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-     wget vim
-     firefox
-     linuxPackages.asus-wmi-sensors
-     lm_sensors
-     chromium
-     git
-     gparted
-     vscode
-     vlc
-     kicad
-     keepassxc
-     kodi
-     transmission
-     filezilla
-     docker
-     docker_compose
-     vulkan-tools
-     virtualboxWithExtpack
-     kcalc
-     ark
-     ardour
-     cmake
-     minicom
-     picocom
-     radeon-profile
-     glxinfo
-     dropbox
-     yosys
-     nextpnr
-     icestorm
-     gnumake
-     rustup
-     zoom-us
-     tree
-     jetbrains.idea-community
-     adoptopenjdk-hotspot-bin-16
-     guvcview
-     v4l_utils
-     obs-studio
-     hugo
-     nix-prefetch-scripts
-     spectacle
-     ffmpeg-full
-     kdenlive
-     awscli2
-     gtkwave
-     verilog
-     usbutils
+    wget
+    vim
+    firefox
+    linuxPackages.asus-wmi-sensors
+    lm_sensors
+    chromium
+    git
+    gparted
+    vscode
+    vlc
+    #     kicad
+    keepassxc
+    #     kodi
+    transmission
+    filezilla
+    docker
+    docker-compose
+    #     vulkan-tools
+    virtualboxWithExtpack
+    kcalc
+    ark
+    ardour
+    cmake
+    minicom
+    picocom
+    radeon-profile
+    glxinfo
+    dropbox
+    yosys
+    nextpnr
+    icestorm
+    gnumake
+    #     rustup
+    #     zoom-us
+    tree
+    jetbrains.idea-community
+    openjdk
+    guvcview
+    v4l_utils
+    obs-studio
+    hugo
+    nix-prefetch-scripts
+    #     spectacle
+    ffmpeg-full
+    kdenlive
+    awscli2
+    gtkwave
+    verilog
+    usbutils
+    nixpkgs-fmt
   ];
 
   fileSystems."/mnt/tank" = {
     device = "10.0.0.1:/tank";
     fsType = "nfs";
-    options = ["noauto"];
+    options = [ "noauto" ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -204,7 +235,7 @@
   programs.zsh.enable = true;
   programs.java = {
     enable = true;
-    package = pkgs.adoptopenjdk-hotspot-bin-15;
+    package = pkgs.openjdk;
   };
   # List services that you want to enable:
 
@@ -215,7 +246,7 @@
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -223,7 +254,7 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "20.09"; # Did you read the comment?
+  system.stateVersion = "21.11"; # Did you read the comment?
 
 }
 
