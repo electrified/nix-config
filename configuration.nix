@@ -33,12 +33,14 @@
 
   networking.hostName = "zoomer";
 
+  networking.wireless.environmentFile = "/run/secrets/wireless.env";
+
   networking.wireless = {
     enable = true; # Enables wireless support via wpa_supplicant.
-    userControlled.enable = true;
+    userControlled.enable = false;
     networks = {
       badgerfields = {
-        pskRaw = "";
+        psk = "@PSK_BADGERFIELDS@";
       };
     };
   };
@@ -68,11 +70,11 @@
   #   wlp7s0.useDHCP = true;
   # };
   # Select internationalisation properties.
-  # i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  # };
+  i18n.defaultLocale = "en_GB.UTF-8";
+  console = {
+    font = "Lat2-Terminus16";
+    keyMap = "uk";
+  };
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -84,7 +86,7 @@
 
 
   # Configure keymap in X11
-  # services.xserver.layout = "us";
+  services.xserver.layout = "gb";
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable CUPS to print documents.
