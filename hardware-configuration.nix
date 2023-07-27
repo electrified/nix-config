@@ -8,30 +8,54 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
-  boot.initrd.kernelModules = [ "dm-snapshot" ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ehci_pci" "ahci" "megaraid_sas" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/ea1c3206-14d8-4bff-9249-237e0a15dc9e";
+    { device = "/dev/disk/by-uuid/3c2aa854-94fa-4802-8838-00d24f5d5730";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/0C10-981C";
+    { device = "/dev/disk/by-uuid/C782-01C8";
       fsType = "vfat";
     };
 
-  fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/54cbdaaa-153e-44dc-83e8-8772646b9c0f";
-      fsType = "ext4";
+  fileSystems."/tank" =
+    { device = "tank";
+      fsType = "zfs";
+    };
+
+  fileSystems."/tank/media" =
+    { device = "tank/media";
+      fsType = "zfs";
+    };
+
+  fileSystems."/tank/storage" =
+    { device = "tank/storage";
+      fsType = "zfs";
+    };
+
+  fileSystems."/tank/media/video" =
+    { device = "tank/media/video";
+      fsType = "zfs";
+    };
+
+  fileSystems."/tank/media/audio" =
+    { device = "tank/media/audio";
+      fsType = "zfs";
+    };
+
+  fileSystems."/tank/storage/rom_share" =
+    { device = "tank/storage/rom_share";
+      fsType = "zfs";
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/fe465815-947f-4ffa-a8eb-fe9dc33d5f95"; }
+    [ { device = "/dev/disk/by-uuid/08383a66-be88-4925-b56f-37c7b5a27f1a"; }
     ];
 
-  # high-resolution display
-  hardware.video.hidpi.enable = lib.mkDefault true;
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
