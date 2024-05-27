@@ -14,12 +14,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = ["zfs"];
-  boot.kernelPackages = pkgs.linuxPackages_5_15;
+  #boot.kernelPackages = pkgs.linuxPackages_5_15;
 
   networking.hostName = "orinoco"; # Define your hostname.
   networking.hostId = "b310b4df";
   networking.wireless = {
-    environmentFile = "/run/secrets/wireless.env";
+    environmentFile = "/root/secrets/wireless.env";
     enable = true;
     networks = {
        badgerfields = {
@@ -27,6 +27,8 @@
        };
     };
   };
+
+nixpkgs.config.allowUnfree = true;
   
   # ip forwarding
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
@@ -67,11 +69,54 @@ dhcp-range=192.168.20.2,192.168.20.200,12h\n
 dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
 #dhcp-option=192.168.2.2,option:
 };
+
+  fileSystems."/export/tank" =
+    { device = "/tank";
+      options = ["bind"];
+    };
+
+  fileSystems."/export/tank/media" =
+    { device = "/tank/media";
+      options = ["bind"];
+    };
+
+  fileSystems."/export/tank/storage" =
+    { device = "/tank/storage";
+      options = ["bind"];    
+    };
+
+  fileSystems."/export/tank/media/video" =
+    { device = "/tank/media/video";
+      options = ["bind"];
+    };
+
+  fileSystems."/export/tank/media/audio" =
+    { device = "/tank/media/audio";
+      options = ["bind"];
+    };
+
+  fileSystems."/export/tank/storage/rom_share" =
+    { device = "/tank/storage/rom_share";
+      options = ["bind"];
+    };
+
+
+
 #zfs mounted
 #nfs shares
 services.nfs.server = {
 enable = true;
 };
+
+services.nfs.server.exports = ''
+    /export/tank         192.168.10.0/24(rw,fsid=0,no_subtree_check)
+    /export/tank/storage         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media/video         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media/audio         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+    /export/tank/storage/rom_share         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+'';
+
 #samba shares
 services.samba = {
  enable = true;
@@ -134,6 +179,7 @@ services.samba = {
   #   wget
      firefox
      vlc
+     vscode
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
