@@ -246,6 +246,19 @@ networking.firewall.allowPing = true;
     # "--kubelet-arg=v=4" # Optionally add additional args to k3s
   ];
 
+
+services.xrdp = {
+	enable = true;
+	defaultWindowManager = "startplasma-x11";
+	openFirewall = true;
+	extraConfDirCommands = ''
+    substituteInPlace $out/xrdp.ini \
+      --replace "#tcp_send_buffer_bytes=32768" "tcp_send_buffer_bytes=4194304"
+    	'';
+};
+
+  boot.kernel.sysctl."net.core.wmem_max" = 8388608;
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
