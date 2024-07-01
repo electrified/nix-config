@@ -6,14 +6,16 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./tigervnc.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.supportedFilesystems = ["zfs"];
+  boot.supportedFilesystems = [ "zfs" ];
   #boot.kernelPackages = pkgs.linuxPackages_5_15;
 
   networking.hostName = "orinoco"; # Define your hostname.
@@ -22,140 +24,146 @@
     environmentFile = "/root/secrets/wireless.env";
     enable = true;
     networks = {
-       badgerfields = {
-         psk = "@PSK_BADGERFIELDS@";
-       };
+      badgerfields = {
+        psk = "@PSK_BADGERFIELDS@";
+      };
     };
   };
 
-nixpkgs.config.allowUnfree = true;
-  
+  nixpkgs.config.allowUnfree = true;
+
   # ip forwarding
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
-#set ips
+  #set ips
 
   networking.interfaces = {
- #10GBE
-  enp2s0 = {
-  useDHCP=false;
-  ipv4 = {addresses = [{address="192.168.10.1"; prefixLength=24;}];};
-  };
- # Onboard
-  enp5s0 = {
-useDHCP=false;
-  };
-  # Intel Gbe PCIe 
-  enp9s0 = {
-useDHCP=false;
-  ipv4 = {addresses = [{address="192.168.20.1"; prefixLength=24;}];};
-  };
-  wlp4s0 = {
-    useDHCP=true;
-};
+    #10GBE
+    enp2s0 = {
+      useDHCP = false;
+      ipv4 = { addresses = [{ address = "192.168.10.1"; prefixLength = 24; }]; };
+    };
+    # Onboard
+    enp5s0 = {
+      useDHCP = false;
+    };
+    # Intel Gbe PCIe 
+    enp9s0 = {
+      useDHCP = false;
+      ipv4 = { addresses = [{ address = "192.168.20.1"; prefixLength = 24; }]; };
+    };
+    wlp4s0 = {
+      useDHCP = true;
+    };
   };
 
-networking.firewall = {
-trustedInterfaces = ["enp2s0" "enp5s0" "enp9s0"];
-};
+  networking.firewall = {
+    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" ];
+  };
 
-#dhcp server
-services.dnsmasq = {
-enable = true;
-extraConfig = "interface=lo,enp2s0,enp9s0\n
+  #dhcp server
+  services.dnsmasq = {
+    enable = true;
+    extraConfig = "interface=lo,enp2s0,enp9s0\n
 bind-interfaces\n
 domain=home.lan\n
 dhcp-range=192.168.10.2,192.168.10.200,12h\n
 dhcp-range=192.168.20.2,192.168.20.200,12h\n
 dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
-#dhcp-option=192.168.2.2,option:
-};
+    #dhcp-option=192.168.2.2,option:
+  };
 
   fileSystems."/export/tank" =
-    { device = "/tank";
-      options = ["bind"];
+    {
+      device = "/tank";
+      options = [ "bind" ];
     };
 
   fileSystems."/export/tank/media" =
-    { device = "/tank/media";
-      options = ["bind"];
+    {
+      device = "/tank/media";
+      options = [ "bind" ];
     };
 
   fileSystems."/export/tank/storage" =
-    { device = "/tank/storage";
-      options = ["bind"];    
+    {
+      device = "/tank/storage";
+      options = [ "bind" ];
     };
 
   fileSystems."/export/tank/media/video" =
-    { device = "/tank/media/video";
-      options = ["bind"];
+    {
+      device = "/tank/media/video";
+      options = [ "bind" ];
     };
 
   fileSystems."/export/tank/media/audio" =
-    { device = "/tank/media/audio";
-      options = ["bind"];
+    {
+      device = "/tank/media/audio";
+      options = [ "bind" ];
     };
 
   fileSystems."/export/tank/storage/rom_share" =
-    { device = "/tank/storage/rom_share";
-      options = ["bind"];
+    {
+      device = "/tank/storage/rom_share";
+      options = [ "bind" ];
     };
 
 
 
-#zfs mounted
-#nfs shares
-services.nfs.server = {
-enable = true;
-};
+  #zfs mounted
+  #nfs shares
+  services.nfs.server = {
+    enable = true;
+  };
 
-services.nfs.server.exports = ''
+  services.nfs.server.exports = ''
     /export/tank         192.168.10.0/24(rw,fsid=0,no_subtree_check)
     /export/tank/storage         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
     /export/tank/media/video         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
     /export/tank/media/audio         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
     /export/tank/media         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
     /export/tank/storage/rom_share         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
-'';
-
-#samba shares
-services.samba = {
-  enable = true;
-  securityType = "user";
-  openFirewall = true;
-  extraConfig = ''
-    workgroup = WOMBLE
-    server string = orinoco
-    netbios name = orinoco
-    security = user 
-    #use sendfile = yes
-    #max protocol = smb2
-    # note: localhost is the ipv6 localhost ::1
-    hosts allow = 192.168. 127.0.0.1 localhost
-    hosts deny = 0.0.0.0/0
-    guest account = nobody
-    map to guest = bad user
   '';
-  shares = {
-    tank = {
-      path = "/export/tank";
-      browseable = "yes";
-      "read only" = "no";
-      "guest ok" = "no";
-      "create mask" = "0644";
-      "directory mask" = "0755";
-#      "force user" = "ed";
-#      "force group" = "ed";
+
+  #samba shares
+  services.samba = {
+    enable = true;
+    securityType = "user";
+    openFirewall = true;
+    extraConfig = ''
+      workgroup = WOMBLE
+      server string = orinoco
+      netbios name = orinoco
+      security = user 
+      #use sendfile = yes
+      #max protocol = smb2
+      # note: localhost is the ipv6 localhost ::1
+      hosts allow = 192.168. 127.0.0.1 localhost
+      hosts deny = 0.0.0.0/0
+      guest account = nobody
+      map to guest = bad user
+    '';
+    shares = {
+      tank = {
+        path = "/export/tank";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "no";
+        "create mask" = "0644";
+        "directory mask" = "0755";
+        #      "force user" = "ed";
+        #      "force group" = "ed";
+      };
     };
   };
-};
 
-services.samba-wsdd = {
-  enable = true;
-  openFirewall = true;
-};
+  services.samba-wsdd = {
+    enable = true;
+    openFirewall = true;
+  };
 
-networking.firewall.enable = true;
-networking.firewall.allowPing = true;
+  networking.firewall.enable = true;
+  networking.firewall.allowPing = true;
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -184,7 +192,7 @@ networking.firewall.allowPing = true;
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  
+
 
   # Configure keymap in X11
   services.xserver.layout = "gb";
@@ -202,21 +210,25 @@ networking.firewall.allowPing = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ed = {
-     isNormalUser = true;
-     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    isNormalUser = true;
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
   };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-   environment.systemPackages = with pkgs; [
-  #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #   wget
-     firefox
-     vlc
-     vscode
-     git
-     k3s
-   ];
+  environment.systemPackages = with pkgs; [
+    #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #   wget
+    firefox
+    vlc
+    vscode
+    git
+    k3s
+    tigervnc
+    krfb
+    nixpkgs-fmt
+    smartmontools
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -234,6 +246,8 @@ networking.firewall.allowPing = true;
 
   networking.firewall.allowedTCPPorts = [
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
+    5900 # vnc
+    5901
     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
   ];
@@ -247,21 +261,18 @@ networking.firewall.allowPing = true;
   ];
 
 
-services.xrdp = {
-	enable = true;
-	defaultWindowManager = "startplasma-x11";
-	openFirewall = true;
-	extraConfDirCommands = ''
-    substituteInPlace $out/xrdp.ini \
-      --replace "#tcp_send_buffer_bytes=32768" "tcp_send_buffer_bytes=4194304"
-    	'';
-};
+  services.xrdp = {
+    enable = true;
+    defaultWindowManager = "startplasma-x11";
+    openFirewall = true;
+    extraConfDirCommands = ''
+      substituteInPlace $out/xrdp.ini \
+        --replace "#tcp_send_buffer_bytes=32768" "tcp_send_buffer_bytes=4194304"
+      	'';
+  };
 
   boot.kernel.sysctl."net.core.wmem_max" = 8388608;
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
@@ -273,4 +284,3 @@ services.xrdp = {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "21.11"; # Did you read the comment?
 }
-
