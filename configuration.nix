@@ -228,6 +228,7 @@ dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
     krfb
     nixpkgs-fmt
     smartmontools
+    iperf
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -258,6 +259,7 @@ dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
   services.k3s.role = "server";
   services.k3s.extraFlags = toString [
     # "--kubelet-arg=v=4" # Optionally add additional args to k3s
+	"--data-dir /tank/storage/k3s"
   ];
 
 
