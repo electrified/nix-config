@@ -39,8 +39,8 @@
   networking.interfaces = {
     #10GBE
     enp2s0 = {
-      useDHCP = false;
-      ipv4 = { addresses = [{ address = "192.168.10.1"; prefixLength = 24; }]; };
+      useDHCP = true;
+#      ipv4 = { addresses = [{ address = "192.168.10.1"; prefixLength = 24; }]; };
     };
     # Onboard
     enp5s0 = {
@@ -60,17 +60,17 @@
     trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" ];
   };
 
-  #dhcp server
-  services.dnsmasq = {
-    enable = true;
-    extraConfig = "interface=lo,enp2s0,enp9s0\n
-bind-interfaces\n
-domain=home.lan\n
-dhcp-range=192.168.10.2,192.168.10.200,12h\n
-dhcp-range=192.168.20.2,192.168.20.200,12h\n
-dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
-    #dhcp-option=192.168.2.2,option:
-  };
+# dhcp server
+#  services.dnsmasq = {
+#    enable = true;
+#    extraConfig = "interface=lo,enp2s0,enp9s0\n
+#bind-interfaces\n
+#domain=home.lan\n
+#dhcp-range=192.168.10.2,192.168.10.200,12h\n
+#dhcp-range=192.168.20.2,192.168.20.200,12h\n
+#dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
+#    #dhcp-option=192.168.2.2,option:
+#  };
 
   fileSystems."/export/tank" =
     {
@@ -117,12 +117,12 @@ dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
   };
 
   services.nfs.server.exports = ''
-    /export/tank         192.168.10.0/24(rw,fsid=0,no_subtree_check)
-    /export/tank/storage         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
-    /export/tank/media/video         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
-    /export/tank/media/audio         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
-    /export/tank/media         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
-    /export/tank/storage/rom_share         192.168.10.0/24(rw,nohide,insecure,no_subtree_check)
+    /export/tank         192.168.0.0/16(rw,fsid=0,no_subtree_check)
+    /export/tank/storage         192.168.0.0/16(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media/video         192.168.0.0/16(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media/audio         192.168.0.0/16(rw,nohide,insecure,no_subtree_check)
+    /export/tank/media         192.168.0.0/16(rw,nohide,insecure,no_subtree_check)
+    /export/tank/storage/rom_share         192.168.0.0/16(rw,nohide,insecure,no_subtree_check)
   '';
 
   #samba shares
