@@ -54,10 +54,13 @@
     wlp4s0 = {
       useDHCP = true;
     };
+    enp2s0f0np0 = {
+      useDHCP = true;
+    };
   };
 
   networking.firewall = {
-    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" ];
+    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" "enp2s0f0np0" "enp2s0f0np1" ];
   };
 
 # dhcp server
@@ -229,6 +232,7 @@
     nixpkgs-fmt
     smartmontools
     iperf
+    mstflint
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
