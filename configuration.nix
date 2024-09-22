@@ -55,13 +55,32 @@
       useDHCP = true;
     };
     enp2s0f0np0 = {
+      useDHCP = false;
+    };
+    enp2s0f1np1 = {
+      useDHCP = false;
+    };
+    bond0 = {
+      macAddress = "98:03:9b:13:ef:64";
       useDHCP = true;
     };
   };
 
   networking.firewall = {
-    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" "enp2s0f0np0" "enp2s0f0np1" ];
+    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" "enp2s0f0np0" "enp2s0f1np1" "bond0" ];
   };
+
+  networking.bonds = {
+    bond0 = {
+      interfaces = [ "enp2s0f0np0" "enp2s0f1np1"];
+      driverOptions = {
+        miimon = "100";
+        mode = "802.3ad";
+        xmit_hash_policy = "layer2+3";
+        lacp_rate = "fast";
+      };
+   };
+};
 
 # dhcp server
 #  services.dnsmasq = {
@@ -193,12 +212,12 @@
 
 
   # Enable the Plasma 5 Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
 
   # Configure keymap in X11
-  services.xserver.layout = "gb";
+  services.xserver.xkb.layout = "gb";
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable CUPS to print documents.
