@@ -5,12 +5,11 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./tigervnc.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./tigervnc.nix
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -40,7 +39,7 @@
     #10GBE
     enp2s0 = {
       useDHCP = true;
-#      ipv4 = { addresses = [{ address = "192.168.10.1"; prefixLength = 24; }]; };
+      # ipv4 = { addresses = [{ address = "192.168.10.1"; prefixLength = 24; }]; };
     };
     # Onboard
     enp5s0 = {
@@ -49,7 +48,14 @@
     # Intel Gbe PCIe 
     enp9s0 = {
       useDHCP = false;
-      ipv4 = { addresses = [{ address = "192.168.20.1"; prefixLength = 24; }]; };
+      ipv4 = {
+        addresses = [
+          {
+            address = "192.168.20.1";
+            prefixLength = 24;
+          }
+        ];
+      };
     };
     wlp4s0 = {
       useDHCP = true;
@@ -67,70 +73,60 @@
   };
 
   networking.firewall = {
-    trustedInterfaces = [ "enp2s0" "enp5s0" "enp9s0" "enp2s0f0np0" "enp2s0f1np1" "bond0" ];
+    trustedInterfaces = [
+      "enp2s0"
+      "enp5s0"
+      "enp9s0"
+      "enp2s0f0np0"
+      "enp2s0f1np1"
+      "bond0"
+    ];
   };
 
   networking.bonds = {
     bond0 = {
-      interfaces = [ "enp2s0f0np0" "enp2s0f1np1"];
+      interfaces = [
+        "enp2s0f0np0"
+        "enp2s0f1np1"
+      ];
       driverOptions = {
         miimon = "100";
         mode = "802.3ad";
         xmit_hash_policy = "layer2+3";
         lacp_rate = "fast";
       };
-   };
-};
-
-# dhcp server
-#  services.dnsmasq = {
-#    enable = true;
-#    extraConfig = "interface=lo,enp2s0,enp9s0\n
-#bind-interfaces\n
-#domain=home.lan\n
-#dhcp-range=192.168.10.2,192.168.10.200,12h\n
-#dhcp-range=192.168.20.2,192.168.20.200,12h\n
-#dhcp-host=00:c0:b7:cf:8f:d5,192.168.20.10";
-#    #dhcp-option=192.168.2.2,option:
-#  };
-
-  fileSystems."/export/tank" =
-    {
-      device = "/tank";
-      options = [ "bind" ];
     };
+  };
 
-  fileSystems."/export/tank/media" =
-    {
-      device = "/tank/media";
-      options = [ "bind" ];
-    };
+  fileSystems."/export/tank" = {
+    device = "/tank";
+    options = [ "bind" ];
+  };
 
-  fileSystems."/export/tank/storage" =
-    {
-      device = "/tank/storage";
-      options = [ "bind" ];
-    };
+  fileSystems."/export/tank/media" = {
+    device = "/tank/media";
+    options = [ "bind" ];
+  };
 
-  fileSystems."/export/tank/media/video" =
-    {
-      device = "/tank/media/video";
-      options = [ "bind" ];
-    };
+  fileSystems."/export/tank/storage" = {
+    device = "/tank/storage";
+    options = [ "bind" ];
+  };
 
-  fileSystems."/export/tank/media/audio" =
-    {
-      device = "/tank/media/audio";
-      options = [ "bind" ];
-    };
+  fileSystems."/export/tank/media/video" = {
+    device = "/tank/media/video";
+    options = [ "bind" ];
+  };
 
-  fileSystems."/export/tank/storage/rom_share" =
-    {
-      device = "/tank/storage/rom_share";
-      options = [ "bind" ];
-    };
+  fileSystems."/export/tank/media/audio" = {
+    device = "/tank/media/audio";
+    options = [ "bind" ];
+  };
 
-
+  fileSystems."/export/tank/storage/rom_share" = {
+    device = "/tank/storage/rom_share";
+    options = [ "bind" ];
+  };
 
   #zfs mounted
   #nfs shares
@@ -210,11 +206,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-
   # Enable the Plasma 5 Desktop Environment.
   services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
@@ -248,7 +242,7 @@
     k3s
     tigervnc
     krfb
-    nixpkgs-fmt
+    nixfmt-rfc-style
     smartmontools
     iperf
     mstflint
@@ -267,7 +261,6 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-
   networking.firewall.allowedTCPPorts = [
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
     5900 # vnc
@@ -282,9 +275,8 @@
   services.k3s.role = "server";
   services.k3s.extraFlags = toString [
     # "--kubelet-arg=v=4" # Optionally add additional args to k3s
-	"--data-dir /tank/storage/k3s"
+    "--data-dir /tank/storage/k3s"
   ];
-
 
   services.xrdp = {
     enable = true;
