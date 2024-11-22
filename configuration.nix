@@ -111,7 +111,7 @@
       mode = "0444";
       source = ./dashboards/hwmon.json;
     };
-    "jdk15".source = adoptopenjdk-jre-hotspot-bin-15;
+    "jdk".source = temurin-jre-bin;
   };
 
   services.grafana = {
