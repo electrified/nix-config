@@ -5,25 +5,20 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.blacklistedKernelModules = [
-    "dvb_usb_rtl28xxu"
-  ];
+  boot.blacklistedKernelModules = [ "dvb_usb_rtl28xxu" ];
 
   services.udev.packages = [ pkgs.rtl-sdr ];
 
-  boot.extraModulePackages = [
-    pkgs.linuxPackages.asus-wmi-sensors
-  ];
+  boot.extraModulePackages = [ pkgs.linuxPackages.asus-wmi-sensors ];
 
   boot.kernelModules = [ "asus-wmi-sensors" ];
 
@@ -36,7 +31,7 @@
   networking.wireless.environmentFile = "/run/secrets/wireless.env";
 
   networking.wireless = {
-    enable = true; # Enables wireless support via wpa_supplicant.
+    enable = false; # Enables wireless support via wpa_supplicant.
     userControlled.enable = false;
     networks = {
       badgerfields = {
@@ -79,14 +74,12 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-
   # Enable the Plasma 5 Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
-
   # Configure keymap in X11
-  services.xserver.layout = "gb";
+  services.xserver.xkb.layout = "gb";
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable CUPS to print documents.
@@ -103,12 +96,14 @@
   services.prometheus = {
     enable = true;
     exporters.node.enable = true;
-    scrapeConfigs = [{
-      job_name = "node";
-      static_configs = [{
-        targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
-      }];
-    }];
+    scrapeConfigs = [
+      {
+        job_name = "node";
+        static_configs = [
+          { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ]; }
+        ];
+      }
+    ];
   };
 
   environment.etc = with pkgs; {
@@ -159,7 +154,12 @@
   users.users.ed = {
     isNormalUser = true;
     group = "ed";
-    extraGroups = [ "wheel" "users" "dialout" "plugdev" ];
+    extraGroups = [
+      "wheel"
+      "users"
+      "dialout"
+      "plugdev"
+    ];
     shell = pkgs.zsh;
   };
 
@@ -206,7 +206,7 @@
     jetbrains.idea-community
     openjdk
     guvcview
-    v4l_utils
+    v4l-utils
     obs-studio
     hugo
     nix-prefetch-scripts
@@ -217,13 +217,13 @@
     gtkwave
     verilog
     usbutils
-    nixpkgs-fmt
+    nixfmt-rfc-style
   ];
 
   fileSystems."/mnt/tank" = {
-    device = "10.0.0.1:/tank";
+    device = "orinoco.badgerfields.internal:/export/tank";
     fsType = "nfs";
-    options = [ "noauto" ];
+    options = [ "auto" "x-systemd.automount" "x-systemd.device-timeout=10" "timeo=14" "x-systemd.idle-timeout=1min" ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -259,4 +259,3 @@
   system.stateVersion = "21.11"; # Did you read the comment?
 
 }
-
