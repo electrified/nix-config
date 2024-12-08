@@ -45,7 +45,7 @@
     enp5s0 = {
       useDHCP = false;
     };
-    # Intel Gbe PCIe 
+    # Intel Gbe PCIe
     enp9s0 = {
       useDHCP = false;
       ipv4 = {
@@ -148,19 +148,19 @@
     enable = true;
     openFirewall = true;
     settings = {
-global = {
-      "workgroup" = "WOMBLE";
-      "server string" = "orinoco";
-      "netbios name" = "orinoco";
-      "security" = "user";
-      #use sendfile = yes
-      #max protocol = smb2
-      # note: localhost is the ipv6 localhost ::1
-      "hosts allow" = "192.168. 127.0.0.1 localhost";
-      "hosts deny" = "0.0.0.0/0";
-      "guest account" = "nobody";
-      "map to guest" = "bad user";
-    };
+      global = {
+        "workgroup" = "WOMBLE";
+        "server string" = "orinoco";
+        "netbios name" = "orinoco";
+        "security" = "user";
+        #use sendfile = yes
+        #max protocol = smb2
+        # note: localhost is the ipv6 localhost ::1
+        "hosts allow" = "192.168. 127.0.0.1 localhost";
+        "hosts deny" = "0.0.0.0/0";
+        "guest account" = "nobody";
+        "map to guest" = "bad user";
+      };
       "tank" = {
         path = "/export/tank";
         browseable = "yes";
@@ -272,8 +272,11 @@ global = {
   ];
 
   networking.firewall.allowedTCPPortRanges = [
-{from=30000; to=30050;}
-];
+    {
+      from = 30000;
+      to = 30050;
+    }
+  ];
 
   networking.firewall.allowedUDPPorts = [
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
@@ -305,7 +308,6 @@ global = {
     serviceConfig.Type = "forking";
     serviceConfig.Restart = "always";
   };
-
 
   boot.kernel.sysctl."net.core.wmem_max" = 8388608;
 
