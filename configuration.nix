@@ -20,11 +20,11 @@
   networking.hostName = "orinoco"; # Define your hostname.
   networking.hostId = "b310b4df";
   networking.wireless = {
-    environmentFile = "/root/secrets/wireless.env";
+    secretsFile = "/root/secrets/wireless.env";
     enable = true;
     networks = {
       badgerfields = {
-        psk = "@PSK_BADGERFIELDS@";
+        pskRaw = "ext:PSK_BADGERFIELDS";
       };
     };
   };
@@ -146,23 +146,22 @@
   #samba shares
   services.samba = {
     enable = true;
-    securityType = "user";
     openFirewall = true;
-    extraConfig = ''
-      workgroup = WOMBLE
-      server string = orinoco
-      netbios name = orinoco
-      security = user 
+    settings = {
+global = {
+      "workgroup" = "WOMBLE";
+      "server string" = "orinoco";
+      "netbios name" = "orinoco";
+      "security" = "user";
       #use sendfile = yes
       #max protocol = smb2
       # note: localhost is the ipv6 localhost ::1
-      hosts allow = 192.168. 127.0.0.1 localhost
-      hosts deny = 0.0.0.0/0
-      guest account = nobody
-      map to guest = bad user
-    '';
-    shares = {
-      tank = {
+      "hosts allow" = "192.168. 127.0.0.1 localhost";
+      "hosts deny" = "0.0.0.0/0";
+      "guest account" = "nobody";
+      "map to guest" = "bad user";
+    };
+      "tank" = {
         path = "/export/tank";
         browseable = "yes";
         "read only" = "no";
@@ -246,6 +245,8 @@
     smartmontools
     iperf
     mstflint
+    socat
+    pure-ftpd
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -267,9 +268,17 @@
     5901
     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
+    21
   ];
+
+  networking.firewall.allowedTCPPortRanges = [
+{from=30000; to=30050;}
+];
+
   networking.firewall.allowedUDPPorts = [
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
+    12345
+    54321
   ];
   services.k3s.enable = true;
   services.k3s.role = "server";
@@ -287,6 +296,16 @@
         --replace "#tcp_send_buffer_bytes=32768" "tcp_send_buffer_bytes=4194304"
       	'';
   };
+
+  systemd.services.pure-ftpd = {
+    description = "Pure-FTPd Server";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
+    serviceConfig.ExecStart = "${pkgs.pure-ftpd}/bin/pure-ftpd --daemonize --passiveportrange 30000:30050";
+    serviceConfig.Type = "forking";
+    serviceConfig.Restart = "always";
+  };
+
 
   boot.kernel.sysctl."net.core.wmem_max" = 8388608;
 
