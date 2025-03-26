@@ -179,6 +179,16 @@
     openFirewall = true;
   };
 
+  services.bind = {
+    enable = true;
+    zones = {
+      "cluster.badgerfields.internal" = {
+        master = true;
+        file = "/var/dns/cluster.badgerfields.internal";
+      };
+    };
+  };
+
   networking.firewall.enable = true;
   networking.firewall.allowPing = true;
 
@@ -226,7 +236,10 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ed = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel"
+      "cdrom"
+    ]; # Enable ‘sudo’ for the user.
   };
 
   # List packages installed in system profile. To search, run:
@@ -247,6 +260,7 @@
     mstflint
     socat
     pure-ftpd
+    kdePackages.k3b
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
