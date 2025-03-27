@@ -3,12 +3,12 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
 {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./tigervnc.nix
+    ./bind.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -179,16 +179,6 @@
     openFirewall = true;
   };
 
-  services.bind = {
-    enable = true;
-    zones = {
-      "cluster.badgerfields.internal" = {
-        master = true;
-        file = "/var/dns/cluster.badgerfields.internal";
-      };
-    };
-  };
-
   networking.firewall.enable = true;
   networking.firewall.allowPing = true;
 
@@ -277,6 +267,7 @@
   services.openssh.enable = true;
 
   networking.firewall.allowedTCPPorts = [
+    53
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
     5900 # vnc
     5901
@@ -293,6 +284,7 @@
   ];
 
   networking.firewall.allowedUDPPorts = [
+    53
     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
     12345
     54321
