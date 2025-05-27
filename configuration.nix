@@ -12,7 +12,7 @@
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.canTouchEfiVariables = false;
 
   boot.blacklistedKernelModules = [ "dvb_usb_rtl28xxu" ];
 
@@ -28,14 +28,13 @@
 
   networking.hostName = "zoomer";
 
-  networking.wireless.environmentFile = "/run/secrets/wireless.env";
-
   networking.wireless = {
+    secretsFile = "/run/secrets/wireless.env";
     enable = false; # Enables wireless support via wpa_supplicant.
     userControlled.enable = false;
     networks = {
       badgerfields = {
-        psk = "@PSK_BADGERFIELDS@";
+        pskRaw = "ext:PSK_BADGERFIELDS";
       };
     };
   };
@@ -74,9 +73,8 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the Plasma 5 Desktop Environment.
   services.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
@@ -86,8 +84,6 @@
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.gutenprint ];
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
   hardware.rtl-sdr.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
@@ -181,14 +177,14 @@
     #     kicad
     keepassxc
     #     kodi
-    transmission
+    transmission_4
     filezilla
     docker
     docker-compose
     #     vulkan-tools
     virtualboxWithExtpack
-    kcalc
-    ark
+    kdePackages.kcalc
+    kdePackages.ark
     ardour
     cmake
     minicom
@@ -212,7 +208,7 @@
     nix-prefetch-scripts
     #     spectacle
     ffmpeg-full
-    kdenlive
+    kdePackages.kdenlive
     awscli2
     gtkwave
     verilog
