@@ -251,6 +251,7 @@
     socat
     pure-ftpd
     kdePackages.k3b
+    minicom
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -274,6 +275,8 @@
     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
     21
+    80
+    443
   ];
 
   networking.firewall.allowedTCPPortRanges = [
@@ -298,7 +301,7 @@
 
   services.xrdp = {
     enable = true;
-    defaultWindowManager = "startplasma-x11";
+    defaultWindowManager = "startplasma-wayland";
     openFirewall = true;
     extraConfDirCommands = ''
       substituteInPlace $out/xrdp.ini \

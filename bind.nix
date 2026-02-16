@@ -34,6 +34,7 @@ in
 
   services.bind = {
     enable = true;
+    forwarders = [ "192.168.1.1" ];
     extraConfig = ''
       include "/var/lib/secrets/*-dnskeys.conf";
     '';
@@ -43,7 +44,13 @@ in
         allowQuery = [ "any" ];
         file = "/etc/bind/zones/${fqdn2domain}.zone";
         master = true;
-        extraConfig = "allow-update { key rfc2136key.${fqdn2domain}.; };";
+        extraConfig = ''
+#		allow-update { key rfc2136key.${fqdn2domain}; };
+#		allow-transfer { key rfc2136key.${fqdn2domain}; };
+	    update-policy {
+		        grant rfc2136key.${fqdn2domain} zonesub ANY;
+    		};
+	'';
       };
     };
   };
