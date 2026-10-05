@@ -15,6 +15,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.forceImportRoot = false;
   #boot.kernelPackages = pkgs.linuxPackages_5_15;
 
   networking.hostName = "orinoco"; # Define your hostname.
@@ -100,31 +101,37 @@
 
   fileSystems."/export/tank" = {
     device = "/tank";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
   fileSystems."/export/tank/media" = {
     device = "/tank/media";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
   fileSystems."/export/tank/storage" = {
     device = "/tank/storage";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
   fileSystems."/export/tank/media/video" = {
     device = "/tank/media/video";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
   fileSystems."/export/tank/media/audio" = {
     device = "/tank/media/audio";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
   fileSystems."/export/tank/storage/rom_share" = {
     device = "/tank/storage/rom_share";
+    fsType = "auto";
     options = [ "bind" ];
   };
 
@@ -179,6 +186,11 @@
     openFirewall = true;
   };
 
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+  };
+
   networking.firewall.enable = true;
   networking.firewall.allowPing = true;
 
@@ -207,7 +219,7 @@
 
   # Enable the Plasma 5 Desktop Environment.
   services.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
@@ -243,8 +255,8 @@
     git
     k3s
     tigervnc
-    krfb
-    nixfmt-rfc-style
+    #    krfb
+    nixfmt
     smartmontools
     iperf
     mstflint
@@ -252,6 +264,10 @@
     pure-ftpd
     kdePackages.k3b
     minicom
+    nerdctl
+    buildkit
+    runc
+    containerd
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -292,12 +308,29 @@
     12345
     54321
   ];
-  services.k3s.enable = true;
-  services.k3s.role = "server";
-  services.k3s.extraFlags = toString [
-    # "--kubelet-arg=v=4" # Optionally add additional args to k3s
-    "--data-dir /tank/storage/k3s"
-  ];
+
+  services.k3s = {
+    enable = true;
+    role = "server";
+
+    extraFlags = toString [
+      # "--kubelet-arg=v=4" # Optionally add additional args to k3s
+      "--data-dir /tank/storage/k3s"
+    ];
+  };
+
+  # Configure k3s to use HTTP registry
+  environment.etc."rancher/k3s/registries.yaml".text = ''
+    mirrors:
+      "192.168.1.9:32000":
+        endpoint:
+          - "http://192.168.1.9:32000"
+
+    configs:
+      "192.168.1.9:32000":
+        tls:
+          insecure_skip_verify: true
+  '';
 
   services.xrdp = {
     enable = true;

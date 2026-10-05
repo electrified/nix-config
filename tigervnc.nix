@@ -3,7 +3,7 @@ let
   home = "/home/ed";
 in
 {
-  environment.systemPackages = [ pkgs.xorg.xinit ];
+  environment.systemPackages = [ pkgs.xinit ];
 
   systemd.services.vncserver = {
     enable = true;
@@ -21,7 +21,7 @@ in
       WorkingDirectory = "${home}";
 
       ExecStartPre = "/bin/sh -c '${pkgs.tigervnc}/bin/vncserver -kill :1 > /dev/null 2>&1 || :'";
-      ExecStart = "${pkgs.xorg.xinit}/bin/xinit ${home}/.vnc/xstartup -- ${pkgs.tigervnc}/bin/Xvnc :1 -interface 127.0.0.1 -rfbauth ${home}/.vnc/passwd";
+      ExecStart = "${pkgs.xinit}/bin/xinit ${home}/.vnc/xstartup -- ${pkgs.tigervnc}/bin/Xvnc :1 -interface 127.0.0.1 -rfbauth ${home}/.vnc/passwd";
       ExecStop = "${pkgs.tigervnc}/bin/vncserver -kill :1";
 
     };
